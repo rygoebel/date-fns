@@ -27,6 +27,10 @@ var numericPatterns = {
   threeDigits: /^\d{1,3}/, // 0 to 999
   fourDigits: /^\d{1,4}/, // 0 to 9999
 
+  singleDigitMinimum: /^\d{1,4}/, // 0 to 9999
+  exactlyTwoDigits: /^\d{2}/, // 00 to 99
+  threeDigitsMinimum: /^\d{3,4}/, // 000 to 9999
+
   anyDigitsSigned: /^-?\d+/,
   singleDigitSigned: /^-?\d/, // 0 to 9, -0 to -9
   twoDigitsSigned: /^-?\d{1,2}/, // 0 to 99, -0 to -99
@@ -43,13 +47,19 @@ var timezonePatterns = {
 }
 
 function parseNumericPattern(pattern, string, valueCallback) {
+  console.log('---')
+  console.log(pattern)
+  console.log(string)
   var matchResult = string.match(pattern)
+  console.log(matchResult)
 
   if (!matchResult) {
     return null
   }
 
   var value = parseInt(matchResult[0], 10)
+  console.log(value)
+  console.log('---')
 
   return {
     value: valueCallback ? valueCallback(value) : value,
@@ -96,6 +106,10 @@ function parseAnyDigitsSigned(string, valueCallback) {
 }
 
 function parseNDigits(n, string, valueCallback) {
+  console.log('+++')
+  console.log(n)
+  console.log(string)
+  console.log('+++')
   switch (n) {
     case 1:
       return parseNumericPattern(
@@ -159,6 +173,35 @@ function parseNDigitsSigned(n, string, valueCallback) {
     default:
       return parseNumericPattern(
         new RegExp('^-?\\d{1,' + n + '}'),
+        string,
+        valueCallback
+      )
+  }
+}
+
+function parseNDigitsMinimum(n, string, valueCallback) {
+  switch (n) {
+    case 1:
+      return parseNumericPattern(
+        numericPatterns.singleDigitMinimum,
+        string,
+        valueCallback
+      )
+    case 2:
+      return parseNumericPattern(
+        numericPatterns.exactlyTwoDigits, // 'yy' accepts only two digit years (according to spec)
+        string,
+        valueCallback
+      )
+    case 3:
+      return parseNumericPattern(
+        numericPatterns.threeDigitsMinimum,
+        string,
+        valueCallback
+      )
+    default:
+      return parseNumericPattern(
+        new RegExp('^\\d{' + n + '}'),
         string,
         valueCallback
       )
@@ -315,16 +358,21 @@ var parsers = {
         }
       }
 
+      console.log('===')
+      console.log(string)
+      console.log(token)
+      console.log(match)
+      console.log(_options)
       switch (token) {
-        case 'y':
-          return parseNDigits(4, string, valueCallback)
         case 'yo':
           return match.ordinalNumber(string, {
             unit: 'year',
             valueCallback: valueCallback
           })
         default:
-          return parseNDigits(token.length, string, valueCallback)
+          console.log(parseNDigits(token.length, string, valueCallback))
+          console.log('===')
+          return parseNDigitsMinimum(token.length, string, valueCallback)
       }
     },
 

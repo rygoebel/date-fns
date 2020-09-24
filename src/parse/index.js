@@ -367,6 +367,9 @@ export default function parse(
   var formatString = String(dirtyFormatString)
   var options = dirtyOptions || {}
 
+  console.log('parse()')
+  console.log(dateString)
+  console.log(formatString)
   var locale = options.locale || defaultLocale
 
   if (!locale.match) {
@@ -442,6 +445,7 @@ export default function parse(
     })
     .join('')
     .match(formattingTokensRegExp)
+  console.log(tokens)
 
   const usedTokens = []
 
@@ -463,6 +467,8 @@ export default function parse(
 
     var firstCharacter = token[0]
     var parser = parsers[firstCharacter]
+    console.log(firstCharacter)
+    console.log(parser)
     if (parser) {
       const { incompatibleTokens } = parser
       if (Array.isArray(incompatibleTokens)) {
@@ -489,6 +495,7 @@ export default function parse(
       }
 
       usedTokens.push({ token: firstCharacter, fullToken: token })
+      console.log(usedTokens)
 
       var parseResult = parser.parse(
         dateString,
@@ -496,6 +503,7 @@ export default function parse(
         locale.match,
         subFnOptions
       )
+      console.log(parseResult)
 
       if (!parseResult) {
         return new Date(NaN)
